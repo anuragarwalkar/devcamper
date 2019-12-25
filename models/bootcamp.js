@@ -28,7 +28,8 @@ const BootcampShema = new mongoose.Schema({
     jobAssistance: {type:Boolean,default:false},
     jobGuarantee: {type:Boolean,default:false},
     acceptGi: {type:Boolean,default:false},
-    createdAt:{type:Date,default:Date.now}
+    createdAt:{type:Date,default:Date.now},
+    value:{type:Number}
 })
 
 module.exports = mongoose.model('bootcampModel',BootcampShema);

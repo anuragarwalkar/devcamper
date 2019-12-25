@@ -2,8 +2,10 @@ const bootcampModel = require('../models/bootcamp')
 
 exports.getBootcamps = async (req,res,next)=>{
     try {
-        const bootcamps = await bootcampModel.find();
-        res.status(200).json({success:true,data:bootcamps})   
+        const pageSize = parseInt(req.query.limit?req.query.limit:0);
+        const pageNumber = parseInt(req.query.page?req.query.page:0);
+        const bootcamps = await bootcampModel.find().skip((pageNumber - 1) * pageSize).limit(pageSize);
+        res.status(200).json({success:true,count:bootcamps.length,data:bootcamps})   
     } catch (error) {
         next(error);
     }
@@ -21,9 +23,9 @@ exports.getBootcamp = async (req,res,next) => {
 exports.createBootcamp = async (req,res,next) =>{
     try {
         const bootcamp = await bootcampModel.create(req.body);
-        res.status(200).json({success:true,data:bootcamp})
+        res.status(201).json({success:true,data:bootcamp})
     } catch (error) {
-        res.status(400).json({success:true,data:error})
+        res.status(400).json({success:false,data:error})
     }
 };
 
@@ -33,12 +35,20 @@ exports.updateBootcamp = async (req,res,next) =>{
         if(!updatedBootcamp){
          return res.status(404).json({success:false,message:'Please send a valid id'})
         }
-        res.status(200).json({success:true,data:updatedBootcamp})
+        res.status(201).json({success:true,data:updatedBootcamp})
     } catch (error) {
         next(error);
     }
 }
 
-exports.deleteBootcamp = (req,res,next) =>{
- res.status(200).json({success:true,msg:`deleting ${req.params.id}`})
+exports.deleteBootcamp = async (req,res,next) =>{
+    try {
+        const deletedBootcamp = await bootcampModel.findByIdAndDelete(req.params.id);
+        if(!deletedBootcamp){
+         return res.status(404).json({success:false,message:`${req.params.id} not found`})
+        }
+        res.status(200).json({success:true,message:`${req.params.id} Deleted`})
+    } catch (error) {
+        next(error)
+    }
 }
